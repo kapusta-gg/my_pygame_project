@@ -5,7 +5,8 @@ pygame.init()
 
 size = width, height = GetSystemMetrics(0), GetSystemMetrics(1)
 screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
-
+backround_pos = [0, 0]
+backround_img = pygame.image.load('map.png')
 
 running = True
 while running:
@@ -14,7 +15,7 @@ while running:
             if event.key == pygame.K_ESCAPE:
                 running = False
 
-        screen.fill((0, 255, 255))
+        screen.blit(backround_img, backround_pos)
         pygame.display.flip()
 
 pygame.quit()
