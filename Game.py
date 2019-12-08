@@ -6,8 +6,9 @@ pygame.init()
 
 size = width, height = GetSystemMetrics(0), GetSystemMetrics(1)
 screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
-backround_pos = [0, 0]
-backround_img = pygame.image.load('Files_of_map/map_img.png')
+back_pos = [0, 0]
+back_img = pygame.image.load('Files_of_map/map_img.png')
+what_visible = 'menu'
 
 
 def play_music(music_path):
@@ -22,8 +23,11 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
-        play_music('Files_of_map/map_music.mp3')
-        screen.blit(backround_img, backround_pos)
+        if what_visible == 'menu':
+            b = Menu(0, screen)
+            b.render()
+        else:
+            screen.blit(back_img, back_pos)
         pygame.display.flip()
 
 pygame.quit()
