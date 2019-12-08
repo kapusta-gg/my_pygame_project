@@ -19,3 +19,8 @@ class Menu:
                 font = pygame.font.Font(None, 40)
                 text = font.render(i[0], 1, (255, 255, 255))
                 self.screen.blit(text, [width - 540, height // 2 + 40])
+
+    def what_play(self, what_in_focus):
+        for i in self.maps:
+            if self.maps.index(i) == what_in_focus:
+                return [i[2], i[3]]

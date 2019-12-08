@@ -24,12 +24,18 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             if what_visible == 'menu':
                 if event.button == 5:
                     map__in_focus += 1
                 if event.button == 4:
                     map__in_focus -= 1
+                if event.button == (1 or 2):
+                    inf_for_game = b.what_play(map__in_focus)
+                    what_visible = 'game'
+                    play_music(inf_for_game[1])
+
         if what_visible == 'menu':
             screen.fill((0, 0, 0))
             b = Menu(screen, maps)
@@ -37,9 +43,9 @@ while running:
                 map__in_focus = 0
             elif map__in_focus > len(maps) - 1:
                 map__in_focus = len(maps) - 1
-            a = b.render(map__in_focus, width, height)
-        else:
-            pass
+            b.render(map__in_focus, width, height)
+        elif what_visible == 'game':
+            screen.blit(pygame.image.load(inf_for_game[0]), [0, 0])
         pygame.display.flip()
 
 pygame.quit()
