@@ -23,5 +23,4 @@ class Menu:
 
     def what_play(self, what_in_focus):
         for i in self.maps:
-            if self.maps.index(i) == what_in_focus:
-                return [i[3], i[4]]
+            return [i[3], i[4], i[5]]
