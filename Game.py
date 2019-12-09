@@ -1,4 +1,4 @@
-import pygame
+import pygame, sqlite3
 from win32api import GetSystemMetrics
 from Menu import Menu
 
@@ -8,9 +8,8 @@ size = width, height = GetSystemMetrics(0), GetSystemMetrics(1)
 screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
 what_visible = 'menu'
 map__in_focus = 0
-maps = [['Christopher Larkin', 'Hornet', 'Files_of_map/map_img.png', 'Files_of_map/map_music.mp3'],
-        ['zxczxc', 'ZXCzxccZXcSDcds', 'Files_of_map/image.png', 'Files_of_map/map_music.mp3']]
-
+con = sqlite3.connect("collections.db")
+cur = con.cursor()
 
 def play_music(music_path):
     pygame.mixer.music.load(music_path)
@@ -38,11 +37,12 @@ while running:
 
         if what_visible == 'menu':
             screen.fill((0, 0, 0))
-            b = Menu(screen, maps)
             if map__in_focus < 0:
                 map__in_focus = 0
-            elif map__in_focus > len(maps) - 1:
-                map__in_focus = len(maps) - 1
+            elif map__in_focus > 1:
+                map__in_focus -= 1
+            maps = cur.execute("SELECT * FROM collection WHERE map_on_list=" + str(map__in_focus)).fetchall()
+            b = Menu(screen, maps)
             b.render(map__in_focus, width, height)
         elif what_visible == 'game':
             screen.blit(pygame.image.load(inf_for_game[0]), [0, 0])
