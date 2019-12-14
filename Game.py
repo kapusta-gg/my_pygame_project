@@ -10,7 +10,7 @@ screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
 
 what_visible = 'menu'
 int_map_focus = 0
-con = sqlite3.connect("collections.db")
+con = sqlite3.connect("data/collections.db")
 cur = con.cursor()
 
 def play_music(music_path):
