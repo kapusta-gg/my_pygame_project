@@ -3,19 +3,20 @@ import sqlite3
 import sys
 from win32api import GetSystemMetrics
 from Menu import Menu
+from Map import Map
 
 pygame.init()
 
 size = width, height = GetSystemMetrics(0), GetSystemMetrics(1)
 screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
 
-what_visible = 'menu'
 int_map_focus = 0
 con = sqlite3.connect("data/collections.db")
 cur = con.cursor()
 v = 30
 fps = 60
 time = 0
+what_visible = 'menu'
 
 def play_music(music_path):
     pygame.mixer.music.load(music_path)
@@ -41,7 +42,7 @@ def start_screen():
                     map_focus -= 1
                 if event.button == (1 or 2):
                     map_focus = menu.what_play(map_focus)
-                    play_music(map_focus[1])
+                    return [map_focus, 'game']
 
             screen.fill((0, 0, 0))
             if map_focus < 0:
@@ -54,8 +55,33 @@ def start_screen():
         pygame.display.flip()
 
 
-start_screen()
-running = True
+def start_play(map_play, screen, time):
+    pygame.mixer.music.load(map_play[1])
+    pygame.mixer.music.set_volume(0.3)
+    pygame.mixer.music.play()
+    screen.fill((0, 0, 0))
 
-pygame.quit()
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    terminate()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                print(1)
+        screen.blit(pygame.image.load(map_play[0]), [0, 0])
+        pygame.display.flip()
+
+
+running = True
+while running:
+    if what_visible == 'menu':
+        map_play = start_screen()
+        what_visible = map_play[1]
+    elif what_visible == 'game':
+        map = Map(map_play[0])
+        map.play(screen, 2354)
+        what_visible = None
+
+
+terminate()
 
