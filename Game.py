@@ -1,7 +1,8 @@
-import pygame, sqlite3
+import pygame
+import sqlite3
+import sys
 from win32api import GetSystemMetrics
 from Menu import Menu
-from Map import Map
 
 pygame.init()
 
@@ -12,6 +13,9 @@ what_visible = 'menu'
 int_map_focus = 0
 con = sqlite3.connect("data/collections.db")
 cur = con.cursor()
+v = 30
+fps = 60
+time = 0
 
 def play_music(music_path):
     pygame.mixer.music.load(music_path)
@@ -19,37 +23,39 @@ def play_music(music_path):
     pygame.mixer.music.play()
 
 
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                running = False
+def terminate():
+    pygame.quit()
+    sys.exit()
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if what_visible == 'menu':
+def start_screen():
+    map_focus = 0
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    terminate()
+            if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 5:
-                    int_map_focus += 1
+                    map_focus += 1
                 if event.button == 4:
-                    int_map_focus -= 1
+                    map_focus -= 1
                 if event.button == (1 or 2):
-                    inf_for_game = menu.what_play(int_map_focus)
-                    what_visible = 'game'
-                    play_music(inf_for_game[1])
+                    map_focus = menu.what_play(map_focus)
+                    play_music(map_focus[1])
 
-        if what_visible == 'menu':
             screen.fill((0, 0, 0))
-            if int_map_focus < 0:
-                map__in_focus = 0
-            elif int_map_focus > 1:
-                int_map_focus -= 1
-            map_focus = cur.execute("SELECT * FROM collection WHERE map_on_list=" + str(int_map_focus)).fetchall()
-            menu = Menu(screen, map_focus)
-            menu.render(int_map_focus, width, height)
-        elif what_visible == 'game':
-            screen.blit(pygame.image.load(inf_for_game[0]), [0, 0])
-            map = Map(inf_for_game)
-            map.draw(screen)
+            if map_focus < 0:
+                map_focus = 0
+            elif map_focus > 1:
+                map_focus -= 1
+            map = cur.execute("SELECT * FROM collection WHERE map_on_list=" + str(map_focus)).fetchall()
+            menu = Menu(screen, map)
+            menu.render(map_focus, width, height)
         pygame.display.flip()
 
+
+start_screen()
+running = True
+
 pygame.quit()
+
