@@ -3,6 +3,7 @@ import sqlite3
 import sys
 from win32api import GetSystemMetrics
 from Menu import Menu
+from Map import Map
 
 pygame.init()
 
@@ -40,8 +41,8 @@ def start_screen():
                 if event.button == 4:
                     map_focus -= 1
                 if event.button == (1 or 2):
-                    map_focus = menu.what_play(map_focus)
-                    play_music(map_focus[1])
+                    map_play = menu.what_play(map_focus)
+                    return map_play
 
             screen.fill((0, 0, 0))
             if map_focus < 0:
@@ -54,7 +55,10 @@ def start_screen():
         pygame.display.flip()
 
 
-start_screen()
+map_play = start_screen()
+print(map_play)
+map = Map(map_play)
+map.play(screen)
 running = True
 
 pygame.quit()
