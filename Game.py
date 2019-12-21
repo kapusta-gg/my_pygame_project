@@ -56,7 +56,6 @@ def start_screen():
 
 
 map_play = start_screen()
-print(map_play)
 map = Map(map_play)
 map.play(screen)
 running = True
