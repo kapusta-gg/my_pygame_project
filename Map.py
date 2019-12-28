@@ -23,6 +23,13 @@ class Map:
         circles = []
         panel = pygame.sprite.Group()
         count = 0
+        combo = 0
+        points = 0
+        max_points = 0
+        accuracy = 100
+        tap_inf_list = []
+        font1 = pygame.font.Font(None, 100)
+        font2 = pygame.font.Font(None, 50)
 
         pygame.mixer.music.load(self.music)
         pygame.mixer.music.set_volume(0.3)
@@ -30,7 +37,6 @@ class Map:
         position = -0.1
 
         clock = pygame.time.Clock()
-
         running = True
         while running:
             for event in pygame.event.get():
@@ -38,22 +44,37 @@ class Map:
                     if event.key == pygame.K_ESCAPE:
                         pygame.quit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    panel.update(event.pos)
+                    panel.update(event.pos, tap_inf_list)
 
+            text1 = font1.render('X' + str(combo), 1, (255, 255, 255))
+            text2 = font2.render(str(points), 1, (255, 255, 255))
+            text3 = font2.render(str(accuracy) + '%', 1, (255, 255, 255))
 
             screen.blit(pygame.image.load(self.image), [0, 0])
+            screen.blit(text1, (0, 1020))
+            screen.blit(text2, (1650, 0))
+            screen.blit(text3, (1650, 50))
+
             draw_on(circles, panel, screen)
-            timing = int(pygame.mixer.music.get_pos() / 1000) / 10
             position, flag = check_draw(position)
             if flag:
                 for i in map_on_play:
                     if position == float(i[0]):
                         draw_circle(int(i[2]), int(i[3]), i[1], panel, circles)
                         count += 1
-            panel.update(None)
+            panel.update(None, tap_inf_list)
             if count > len(panel):
+                print(tap_inf_list)
                 count -= 1
                 del circles[0]
+                if tap_inf_list == 0:
+                    combo = 0
+                else:
+                    combo += tap_inf_list[0][0]
+                points += tap_inf_list[0][1]
+                max_points += tap_inf_list[0][2]
+                accuracy = int(points / max_points * 100)
+                tap_inf_list = []
             clock.tick(60)
             pygame.display.flip()
 
@@ -73,16 +94,23 @@ class Stroke_panel(pygame.sprite.Sprite):
         pygame.draw.circle(self.image, pygame.Color(color), (130, 130), 130, 1)
         self.rect = pygame.Rect(x - 80, y - 80, 500, 500)
 
-    def update(self, args):
-        self.image = pygame.Surface((6 * 50 - self.reduce, 6 * 50 - self.reduce), pygame.SRCALPHA, 32)
+    def update(self, args, list):
+        self.image.fill(pygame.SRCALPHA)
         pygame.draw.circle(self.image, pygame.Color(self.color), (130, 130),
                            130 - self.reduce, 1)
         self.reduce += 2
-        if self.reduce > 80:
+        if self.reduce > 81:
             self.kill()
+            tap_inf(0, list)
         elif args is not None:
             if self.rect.collidepoint(args):
                 self.kill()
+                if 81 > self.reduce > 70:
+                    tap_inf(1, list)
+                elif 70 > self.reduce > 30:
+                    tap_inf(2, list)
+                else:
+                    tap_inf(3, list)
 
 
 
@@ -98,3 +126,15 @@ def check_draw(position):
 def draw_circle(x, y, color, panel, circles):
     Stroke_panel(x, y, color, panel)
     circles.append([x, y, color])
+
+
+def tap_inf(inf, list):
+    print(list)
+    if inf == 0:
+        list.append([0, 0, 300])
+    elif inf == 1:
+        list.append([1, 300, 300])
+    elif inf == 2:
+        list.append([1, 150, 300])
+    else:
+        list.append([0, 0, 300])
