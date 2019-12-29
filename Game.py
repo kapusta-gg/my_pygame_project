@@ -54,24 +54,6 @@ def start_screen():
             menu.render(map_focus, width, height)
         pygame.display.flip()
 
-
-def start_play(map_play, screen, time):
-    pygame.mixer.music.load(map_play[1])
-    pygame.mixer.music.set_volume(0.3)
-    pygame.mixer.music.play()
-    screen.fill((0, 0, 0))
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    terminate()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                print(1)
-        screen.blit(pygame.image.load(map_play[0]), [0, 0])
-        pygame.display.flip()
-
-
 running = True
 while running:
     if what_visible == 'menu':
@@ -79,8 +61,8 @@ while running:
         what_visible = map_play[1]
     elif what_visible == 'game':
         map = Map(map_play[0])
-        map.play(screen, 2354)
-        what_visible = None
+        what_visible = map.play(screen)
+        print(what_visible)
 
 
 terminate()
