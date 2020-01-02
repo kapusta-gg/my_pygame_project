@@ -36,10 +36,12 @@ class Map:
         panel = pygame.sprite.Group()
         count = 0
         combo = 0
+        max_combo = 0
         points = 0
         max_points = 0
         hp = 100
         accuracy = 100
+        total_points = 0
         tap_inf_list = []
         music_end = pygame.USEREVENT + 1
         pygame.mixer.music.set_endevent(music_end)
@@ -95,11 +97,13 @@ class Map:
 
                 if event.type == music_end:
                     post_game = True
-                    text_post3 = font_pause.render('Combo: X' + str(combo), 1, (255, 146, 24))
-                    text_post4 = font_pause.render('Points: ' + str(points), 1, (255, 146, 24))
-                    text_post5 = font_pause.render('Accuracy: ' + str(accuracy) + '%', 1, (255, 146, 24))
+                    total_points = (accuracy * points) // max_combo
+                    text_post3 = font1.render('Combo: X' + str(max_combo), 1, (255, 146, 24))
+                    text_post4 = font1.render('Points: ' + str(points), 1, (255, 146, 24))
+                    text_post5 = font1.render('Accuracy: ' + str(accuracy) + '%', 1, (255, 146, 24))
+                    text_post6 = font1.render('Total points: ' + str(total_points), 1, (255, 146, 24))
                     f = open(self.score, 'a')
-                    print(str(combo) + ' ' + str(points) + ' ' + str(accuracy), file=f)
+                    print(total_points, file=f)
                     f.close()
                     if accuracy > 95:
                         text_mark = font_mark.render('S', 1, (192, 192, 192))
@@ -121,6 +125,7 @@ class Map:
                 screen.blit(text_post3, (60, 250))
                 screen.blit(text_post4, (60, 380))
                 screen.blit(text_post5, (60, 510))
+                screen.blit(text_post6, (60, 640))
                 screen.blit(text_mark, (1230, 50))
                 pygame.display.flip()
 
@@ -163,6 +168,8 @@ class Map:
                         combo = 0
                     else:
                         combo += tap_inf_list[0][0]
+                    if combo > max_combo:
+                        max_combo = combo
                     if hp + tap_inf_list[0][3] > 100:
                         hp = 100
                     elif hp + tap_inf_list[0][3] <= 0:

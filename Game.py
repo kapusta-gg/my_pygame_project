@@ -41,7 +41,7 @@ def start_screen():
                 if event.button == 4:
                     map_focus -= 1
                 if event.button == (1 or 2):
-                    map_focus = menu.what_play(map_focus)
+                    map_focus = menu.what_play()
                     return [map_focus, 'game']
 
             screen.fill((0, 0, 0))
@@ -51,7 +51,7 @@ def start_screen():
                 map_focus -= 1
             map = cur.execute("SELECT * FROM collection WHERE map_on_list=" + str(map_focus)).fetchall()
             menu = Menu(screen, map)
-            menu.render(map_focus, width, height)
+            menu.render(width, height)
         pygame.display.flip()
 
 running = True
