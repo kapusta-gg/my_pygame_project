@@ -6,6 +6,7 @@ def load_level(filename):
     filename = filename
     with open(filename, 'r') as mapFile:
         level_map = [line.strip() for line in mapFile]
+    mapFile.close()
     return level_map
 
 
@@ -22,6 +23,7 @@ class Map:
         self.image = inf[0]
         self.txt = inf[2]
         self.music = inf[1]
+        self.score = inf[3]
 
     def play(self, screen):
         map_on_play = load_level(self.txt)
@@ -29,6 +31,7 @@ class Map:
 
         paused = False
         game_lose = False
+        post_game = False
         circles = []
         panel = pygame.sprite.Group()
         count = 0
@@ -38,13 +41,19 @@ class Map:
         hp = 100
         accuracy = 100
         tap_inf_list = []
+        music_end = pygame.USEREVENT + 1
+        pygame.mixer.music.set_endevent(music_end)
 
+        font_mark = pygame.font.Font(None, 1100)
         font1 = pygame.font.Font(None, 100)
         font2 = pygame.font.Font(None, 50)
+        font3 = pygame.font.Font(None, 60)
         font_pause = pygame.font.Font(None, 150)
         text_pause1 = font_pause.render('Возобновить', 1, (255, 146, 24))
         text_pause2 = font_pause.render('Заново', 1, (255, 146, 24))
         text_pause3 = font_pause.render('Меню', 1, (255, 146, 24))
+        text_post1 = font3.render('Заново', 1, (255, 146, 24))
+        text_post2 = font3.render('Меню', 1, (255, 146, 24))
 
         sprite = pygame.sprite.Sprite()
         heart_group = pygame.sprite.Group()
@@ -67,10 +76,10 @@ class Map:
                             paused = True
                             pygame.mixer.music.pause()
                 if event.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = event.pos
                     if not paused:
                         panel.update(event.pos, tap_inf_list)
-                    else:
-                        x, y = event.pos
+                    elif paused:
                         if 440 < x < 1140 and 100 < y < 300:
                             paused = False
                             pygame.mixer.music.unpause()
@@ -78,8 +87,44 @@ class Map:
                             return 'game'
                         if 440 < x < 1140 and 700 < y < 900:
                             return 'menu'
-            if paused:
+                    if post_game:
+                        if 1320 < x < 1620 and 800 < y < 900:
+                            return 'game'
+                        elif 1320 < x < 1620 and 950 < y < 1050:
+                            return 'menu'
 
+                if event.type == music_end:
+                    post_game = True
+                    text_post3 = font_pause.render('Combo: X' + str(combo), 1, (255, 146, 24))
+                    text_post4 = font_pause.render('Points: ' + str(points), 1, (255, 146, 24))
+                    text_post5 = font_pause.render('Accuracy: ' + str(accuracy) + '%', 1, (255, 146, 24))
+                    f = open(self.score, 'a')
+                    print(str(combo) + ' ' + str(points) + ' ' + str(accuracy), file=f)
+                    f.close()
+                    if accuracy > 95:
+                        text_mark = font_mark.render('S', 1, (192, 192, 192))
+                    elif 95 > accuracy > 90:
+                        text_mark = font_mark.render('A', 1, (34, 139, 34))
+                    elif 90 > accuracy > 85:
+                        text_mark = font_mark.render('B', 1, (65, 105, 225))
+                    elif 85 > accuracy > 80:
+                        text_mark = font_mark.render('C', 1, (210, 105, 30))
+                    elif 80 > accuracy:
+                        text_mark = font_mark.render('D', 1, (255, 69, 0))
+
+            if post_game:
+                screen.blit(pygame.image.load(self.image), [0, 0])
+                draw_pause([[1320, 800, 300, 100], [1320, 950, 300, 100], [50, 200, 900, 600]]
+                           , screen)
+                screen.blit(text_post1, (1400, 825))
+                screen.blit(text_post2, (1400, 980))
+                screen.blit(text_post3, (60, 250))
+                screen.blit(text_post4, (60, 380))
+                screen.blit(text_post5, (60, 510))
+                screen.blit(text_mark, (1230, 50))
+                pygame.display.flip()
+
+            elif paused:
                 screen.blit(pygame.image.load(self.image), [0, 0])
                 if not game_lose:
                     draw_pause([[440, 100, 700, 200], [440, 400, 700, 200], [440, 700, 700, 200]], screen)
@@ -114,7 +159,7 @@ class Map:
                 if count > len(panel):
                     count -= 1
                     del circles[0]
-                    if tap_inf_list == 0:
+                    if tap_inf_list[0][0] == 0:
                         combo = 0
                     else:
                         combo += tap_inf_list[0][0]

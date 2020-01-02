@@ -23,4 +23,4 @@ class Menu:
 
     def what_play(self, what_in_focus):
         for i in self.maps:
-            return [i[3], i[4], i[5]]
+            return [i[3], i[4], i[5], i[6]]

@@ -62,7 +62,6 @@ while running:
     elif what_visible == 'game':
         map = Map(map_play[0])
         what_visible = map.play(screen)
-        print(what_visible)
 
 
 terminate()
