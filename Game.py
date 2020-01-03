@@ -10,6 +10,8 @@ pygame.init()
 size = width, height = GetSystemMetrics(0), GetSystemMetrics(1)
 screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
 
+sound = pygame.mixer.Sound('data/button.wav')
+
 int_map_focus = 0
 con = sqlite3.connect("data/collections.db")
 cur = con.cursor()
@@ -37,10 +39,13 @@ def start_screen():
                     terminate()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 5:
+                    sound.play()
                     map_focus += 1
                 if event.button == 4:
+                    sound.play()
                     map_focus -= 1
                 if event.button == (1 or 2):
+                    sound.play()
                     map_focus = menu.what_play()
                     return [map_focus, 'game']
 
