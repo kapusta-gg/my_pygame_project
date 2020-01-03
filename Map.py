@@ -57,6 +57,10 @@ class Map:
         text_post1 = font3.render('Заново', 1, (255, 146, 24))
         text_post2 = font3.render('Меню', 1, (255, 146, 24))
 
+        game_over_sound = pygame.mixer.Sound('data/game_over.wav')
+        clear_map_sound = pygame.mixer.Sound('data/applause.wav')
+        button_sound = pygame.mixer.Sound('data/button.wav')
+
         sprite = pygame.sprite.Sprite()
         heart_group = pygame.sprite.Group()
         sprite.image = load_image('heart.png')
@@ -76,27 +80,33 @@ class Map:
                     if event.key == pygame.K_ESCAPE:
                         if not paused:
                             paused = True
-                            pygame.mixer.music.pause()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = event.pos
                     if not paused:
                         panel.update(event.pos, tap_inf_list)
                     elif paused:
-                        if 440 < x < 1140 and 100 < y < 300:
-                            paused = False
-                            pygame.mixer.music.unpause()
+                        if not game_lose:
+                            if 440 < x < 1140 and 100 < y < 300:
+                                button_sound.play()
+                                paused = False
+                                pygame.mixer.music.unpause()
                         if 440 < x < 1140 and 400 < y < 600:
+                            button_sound.play()
                             return 'game'
                         if 440 < x < 1140 and 700 < y < 900:
+                            button_sound.play()
                             return 'menu'
                     if post_game:
                         if 1320 < x < 1620 and 800 < y < 900:
+                            button_sound.play()
                             return 'game'
                         elif 1320 < x < 1620 and 950 < y < 1050:
+                            button_sound.play()
                             return 'menu'
 
                 if event.type == music_end:
                     post_game = True
+                    clear_map_sound.play()
                     total_points = (accuracy * points) // max_combo
                     text_post3 = font1.render('Combo: X' + str(max_combo), 1, (255, 146, 24))
                     text_post4 = font1.render('Points: ' + str(points), 1, (255, 146, 24))
@@ -130,6 +140,7 @@ class Map:
                 pygame.display.flip()
 
             elif paused:
+                pygame.mixer.music.pause()
                 screen.blit(pygame.image.load(self.image), [0, 0])
                 if not game_lose:
                     draw_pause([[440, 100, 700, 200], [440, 400, 700, 200], [440, 700, 700, 200]], screen)
@@ -173,6 +184,7 @@ class Map:
                     if hp + tap_inf_list[0][3] > 100:
                         hp = 100
                     elif hp + tap_inf_list[0][3] <= 0:
+                        game_over_sound.play()
                         hp = 0
                         paused = True
                         game_lose = True
