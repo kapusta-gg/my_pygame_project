@@ -24,10 +24,13 @@ class Map:
         self.txt = inf[2]
         self.music = inf[1]
         self.score = inf[3]
+        self.focus = inf[4]
 
     def play(self, screen):
+
         map_on_play = load_level(self.txt)
         map_on_play = [map_on_play[i].split() for i in range(len(map_on_play))]
+        screen.blit(pygame.image.load(self.image), [0, 0])
 
         paused = False
         game_lose = False
@@ -92,17 +95,17 @@ class Map:
                                 pygame.mixer.music.unpause()
                         if 440 < x < 1140 and 400 < y < 600:
                             button_sound.play()
-                            return 'game'
+                            return ['game', None]
                         if 440 < x < 1140 and 700 < y < 900:
                             button_sound.play()
-                            return 'menu'
+                            return ['main', self.focus]
                     if post_game:
                         if 1320 < x < 1620 and 800 < y < 900:
                             button_sound.play()
-                            return 'game'
+                            return ['game', None]
                         elif 1320 < x < 1620 and 950 < y < 1050:
                             button_sound.play()
-                            return 'menu'
+                            return ['main', self.focus]
 
                 if event.type == music_end:
                     post_game = True
@@ -127,7 +130,7 @@ class Map:
                         text_mark = font_mark.render('D', 1, (255, 69, 0))
 
             if post_game:
-                screen.blit(pygame.image.load(self.image), [0, 0])
+                screen.fill(pygame.image.load(self.image), [0, 0])
                 draw_pause([[1320, 800, 300, 100], [1320, 950, 300, 100], [50, 200, 900, 600]]
                            , screen)
                 screen.blit(text_post1, (1400, 825))
@@ -175,6 +178,8 @@ class Map:
                 if count > len(panel):
                     count -= 1
                     del circles[0]
+                    if tap_inf_list == []:
+                        break
                     if tap_inf_list[0][0] == 0:
                         combo = 0
                     else:
@@ -209,14 +214,16 @@ class Stroke_panel(pygame.sprite.Sprite):
         super().__init__(sprites)
         self.reduce = 1
         self.color = color
+        self.x = x
+        self.y = y
         self.image = pygame.Surface((6 * 50, 6 * 50), pygame.SRCALPHA, 32)
         pygame.draw.circle(self.image, pygame.Color(color), (130, 130), 130, 1)
         self.rect = pygame.Rect(x - 80, y - 80, 500, 500)
 
     def update(self, args, list):
-        self.image.fill(pygame.SRCALPHA)
-        pygame.draw.circle(self.image, pygame.Color(self.color), (130, 130),
-                           130 - self.reduce, 1)
+        self.image = pygame.Surface((6 * 50, 6 * 50), pygame.SRCALPHA, 32)
+        pygame.draw.circle(self.image, pygame.Color(self.color), (130, 130), 130 - self.reduce, 1)
+        self.rect = pygame.Rect(self.x - 80, self.y - 80, 500, 500)
         self.reduce += 2
         if self.reduce > 81:
             self.kill()

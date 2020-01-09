@@ -1,3 +1,2 @@
 pygame == 1.9.6
 pypiwin32 == 223
-mutagen == 1.43.0

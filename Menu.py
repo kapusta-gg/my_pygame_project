@@ -30,16 +30,18 @@ class Menu:
             text = font2.render(i[2], 1, (255, 146, 24))
             self.screen.blit(text, [width - 540, height // 2 + 40])
 
-            font3 = pygame.font.Font(None, 80)
-            text = font3.render('Лучшие набранные очки', 1, (255, 146, 24))
-            self.screen.blit(text, [50, 50])
+            font3 = pygame.font.Font(None, 60)
+            text1 = font3.render('Топ набранных очков', 1, (255, 146, 24))
+            text2 = font3.render('на карте', 1, (255, 146, 24))
+            self.screen.blit(text1, [50, 40])
+            self.screen.blit(text2, [150, 80])
 
             y_draw = 150
             count = 0
             for j in list_scores:
                 text = font1.render(str(j), 1, (255, 146, 24))
                 pygame.draw.rect(self.screen, (255, 255, 255), [50, y_draw, 400, 200], 5)
-                self.screen.blit(text, [80, y_draw + 20])
+                self.screen.blit(text, [80, y_draw + 60])
                 y_draw += 200
                 count += 1
                 if count == 4:
@@ -47,4 +49,4 @@ class Menu:
 
     def what_play(self):
         for i in self.maps:
-            return [i[3], i[4], i[5], i[6]]
+            return [i[3], i[4], i[5], i[6], i[0]]
