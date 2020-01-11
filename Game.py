@@ -15,14 +15,24 @@ sound = pygame.mixer.Sound('data/button.wav')
 int_map_focus = 0
 con = sqlite3.connect("data/collections.db")
 cur = con.cursor()
-v = 30
-fps = 60
-time = 0
 what_visible = 'main'
 start_flag = True
 font = pygame.font.Font(None, 120)
 text = font.render('opu!', 1, (255, 146, 24))
 map_focus = 0
+list_info_for_player = ['Дорогой пользователь,',
+                        'Здесь можно прочитать о игре в целом.',
+                        'Карты в игре меняються с помощью колесика мыши.',
+                        'Смысл игры заключаеться в том что надо вовремя нажимать на кружки,',
+                        'но не стоит это делать бездумно!',
+                        'Так же во время игры идет подсчет очков, точности попадения и комбо.',
+                        'В конце игры будут показаны твои результаты в виде очков выданных по формуле,',
+                        'а так же выдана оценка за прохождение карты.',
+                        'После прохождения карты твои результаты будут записаны и выведены в топ твоих рекордов,',
+                        'если таковыми стали.',
+                        '',
+                        'Для выхода нажми ESC на клавиатуре.']
+
 
 
 def play_music(music_path):
@@ -38,6 +48,7 @@ def terminate():
 
 def main_screen(map_focus):
     global start_flag
+    info_for_player = False
     if start_flag:
         play_music('data/circles.mp3')
     else:
@@ -75,18 +86,35 @@ def main_screen(map_focus):
                                 pygame.mixer.music.stop()
                             elif 1055 < x < 1205:
                                 terminate()
+                            elif 1260 < x < 1410:
+                                info_for_player = True
+                                start_flag = False
 
+            if info_for_player:
+                screen.fill((239, 48, 56))
+                font = pygame.font.Font(None, 50)
+                text_coord = 100
+                for line in list_info_for_player:
+                    string_rendered = font.render(line, 1, (255, 146, 24))
+                    info_rect = string_rendered.get_rect()
+                    text_coord += 10
+                    info_rect.top = text_coord
+                    info_rect.x = 10
+                    text_coord += info_rect.height
+                    screen.blit(string_rendered, info_rect)
             if start_flag:
                 screen.blit(pygame.image.load('data/start_img.jpg'), [0, 0])
-                pygame.draw.rect(screen, [239, 48, 56], [0, 480, 1980, 145])
-                pygame.draw.circle(screen,  (239, 48, 56), [600, 550], 200)
+                pygame.draw.rect(screen, (239, 48, 56), [0, 480, 1980, 145])
+                pygame.draw.circle(screen, (239, 48, 56), [600, 550], 200)
                 screen.blit(text, [530, 500])
                 pygame.draw.circle(screen, (255, 255, 255), [600, 550], 200, 15)
                 screen.blit(pygame.image.load('data/play.png'), [850, 480])
                 screen.blit(pygame.image.load('data/exit.png'), [1070, 490])
+                screen.blit(pygame.image.load('data/info.png'), [1265, 490])
                 pygame.draw.polygon(screen, (255, 0, 255), [[850, 480], [1050, 480], [1000, 625], [800, 625]], 5)
                 pygame.draw.polygon(screen, (0, 255, 127), [[1005, 625], [1055, 480], [1255, 480], [1205, 625]], 5)
-            elif not start_flag:
+                pygame.draw.polygon(screen, (0, 191, 255), [[1210, 625], [1260, 480], [1460, 480], [1410, 625]], 5)
+            elif not start_flag and not info_for_player:
                 if map_focus < 0:
                     map_focus = 0
                 elif map_focus > len(count_map) - 1:
@@ -95,6 +123,7 @@ def main_screen(map_focus):
                 menu = Menu(screen, map)
                 menu.render(width, height)
         pygame.display.flip()
+
 
 running = True
 while running:

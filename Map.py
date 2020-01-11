@@ -48,6 +48,8 @@ class Map:
         tap_inf_list = []
         music_end = pygame.USEREVENT + 1
         pygame.mixer.music.set_endevent(music_end)
+        list_reduce = []
+        del_circle = 0
 
         font_mark = pygame.font.Font(None, 1100)
         font1 = pygame.font.Font(None, 100)
@@ -59,6 +61,7 @@ class Map:
         text_pause3 = font_pause.render('Меню', 1, (255, 146, 24))
         text_post1 = font3.render('Заново', 1, (255, 146, 24))
         text_post2 = font3.render('Меню', 1, (255, 146, 24))
+        text_lose = font_pause.render('Ты проиграл', 1, (255, 146, 24))
 
         game_over_sound = pygame.mixer.Sound('data/game_over.wav')
         clear_map_sound = pygame.mixer.Sound('data/applause.wav')
@@ -85,9 +88,12 @@ class Map:
                             paused = True
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = event.pos
-                    if not paused:
-                        panel.update(event.pos, tap_inf_list)
-                    elif paused:
+                    if not paused and not post_game and not game_lose:
+                        for i in panel.sprites():
+                            panel.sprites()[0].update(event.pos, tap_inf_list, list_reduce[0])
+                        del list_reduce[0]
+                        del circles[0]
+                    if paused:
                         if not game_lose:
                             if 440 < x < 1140 and 100 < y < 300:
                                 button_sound.play()
@@ -149,6 +155,7 @@ class Map:
                     draw_pause([[440, 100, 700, 200], [440, 400, 700, 200], [440, 700, 700, 200]], screen)
                     screen.blit(text_pause1, (445, 150))
                 else:
+                    screen.blit(text_lose, (445, 200))
                     draw_pause([[440, 400, 700, 200], [440, 700, 700, 200]], screen)
                 screen.blit(text_pause2, (445, 450))
                 screen.blit(text_pause3, (445, 750))
@@ -167,17 +174,8 @@ class Map:
                 screen.blit(text3, (1780, 50))
                 screen.blit(text4, (35, 0))
 
-                draw_on(circles, panel, screen)
-                position, flag = check_draw(position)
-                if flag:
-                    for i in map_on_play:
-                        if position == float(i[0]):
-                            draw_circle(int(i[2]), int(i[3]), i[1], panel, circles)
-                            count += 1
-                panel.update(None, tap_inf_list)
-                if count > len(panel):
+                if count > len(circles):
                     count -= 1
-                    del circles[0]
                     if tap_inf_list == []:
                         break
                     if tap_inf_list[0][0] == 0:
@@ -199,8 +197,21 @@ class Map:
                     max_points += tap_inf_list[0][2]
                     accuracy = int(points / max_points * 100)
                     tap_inf_list = []
-                clock.tick(60)
+
+                draw_on(circles, panel, screen)
+                position, flag = check_draw(position)
+                if flag:
+                    for i in map_on_play:
+                        if position == float(i[0]):
+                            draw_circle(int(i[2]), int(i[3]), i[1], panel, circles)
+                            list_reduce.append(1)
+                            count += 1
+                for i in range(len(list_reduce)):
+                    panel.sprites()[i].update(None, tap_inf_list, list_reduce[i])
+                for i in range(len(list_reduce)):
+                    list_reduce[i] += 2
                 pygame.display.flip()
+                clock.tick(30)
 
 
 def draw_on(group1, group2, screen):
@@ -212,35 +223,34 @@ def draw_on(group1, group2, screen):
 class Stroke_panel(pygame.sprite.Sprite):
     def __init__(self, x, y, color, sprites):
         super().__init__(sprites)
-        self.reduce = 1
         self.color = color
         self.x = x
         self.y = y
-        self.image = pygame.Surface((6 * 50, 6 * 50), pygame.SRCALPHA, 32)
+        self.image = pygame.Surface((270, 270), pygame.SRCALPHA, 32)
         pygame.draw.circle(self.image, pygame.Color(color), (130, 130), 130, 1)
         self.rect = pygame.Rect(x - 80, y - 80, 500, 500)
 
-    def update(self, args, list):
-        self.image = pygame.Surface((6 * 50, 6 * 50), pygame.SRCALPHA, 32)
-        pygame.draw.circle(self.image, pygame.Color(self.color), (130, 130), 130 - self.reduce, 1)
-        self.rect = pygame.Rect(self.x - 80, self.y - 80, 500, 500)
-        self.reduce += 2
-        if self.reduce > 81:
+    def update(self, args, list, reduce):
+        self.image = pygame.Surface((270 - reduce * 2, 270 - reduce * 2), pygame.SRCALPHA, 32)
+        pygame.draw.circle(self.image, pygame.Color(self.color), (130 - reduce, 130 - reduce),
+                           130 - reduce, 1)
+        self.rect = pygame.Rect(self.x - 80 + reduce, self.y - 80 + reduce, 500, 500)
+        if reduce > 81:
             self.kill()
             tap_inf(0, list)
         elif args is not None:
             if self.rect.collidepoint(args):
                 self.kill()
-                if 81 > self.reduce > 70:
+                if 81 > reduce > 70:
                     tap_inf(1, list)
-                elif 70 > self.reduce > 30:
+                elif 70 > reduce > 30:
                     tap_inf(2, list)
                 else:
                     tap_inf(3, list)
 
 
 def check_draw(position):
-    timing = int(pygame.mixer.music.get_pos() / 1000) / 10
+    timing = pygame.mixer.music.get_pos() // 1000 / 10
     if timing == position:
         return position, False
     else:
