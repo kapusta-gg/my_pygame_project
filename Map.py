@@ -49,7 +49,6 @@ class Map:
         music_end = pygame.USEREVENT + 1
         pygame.mixer.music.set_endevent(music_end)
         list_reduce = []
-        del_circle = 0
 
         font_mark = pygame.font.Font(None, 1100)
         font1 = pygame.font.Font(None, 100)
@@ -89,10 +88,9 @@ class Map:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = event.pos
                     if not paused and not post_game and not game_lose:
-                        for i in panel.sprites():
-                            panel.sprites()[0].update(event.pos, tap_inf_list, list_reduce[0])
+                        panel.sprites()[0].update(event.pos, tap_inf_list, list_reduce[0])
                         del list_reduce[0]
-                        del circles[0]
+
                     if paused:
                         if not game_lose:
                             if 440 < x < 1140 and 100 < y < 300:
@@ -198,7 +196,6 @@ class Map:
                     max_points += tap_inf_list[0][2]
                     accuracy = int(points / max_points * 100)
                     tap_inf_list = []
-
 
                 position, flag = check_draw(position)
                 if flag:
