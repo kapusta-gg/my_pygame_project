@@ -136,7 +136,7 @@ class Map:
                         text_mark = font_mark.render('D', 1, (255, 69, 0))
 
             if post_game:
-                screen.fill(pygame.image.load(self.image), [0, 0])
+                screen.blit(pygame.image.load(self.image), [0, 0])
                 draw_pause([[1320, 800, 300, 100], [1320, 950, 300, 100], [50, 200, 900, 600]]
                            , screen)
                 screen.blit(text_post1, (1400, 825))
@@ -174,8 +174,9 @@ class Map:
                 screen.blit(text3, (1780, 50))
                 screen.blit(text4, (35, 0))
 
-                if count > len(circles):
+                if count > len(panel.sprites()):
                     count -= 1
+                    del circles[0]
                     if tap_inf_list == []:
                         break
                     if tap_inf_list[0][0] == 0:
@@ -198,7 +199,7 @@ class Map:
                     accuracy = int(points / max_points * 100)
                     tap_inf_list = []
 
-                draw_on(circles, panel, screen)
+
                 position, flag = check_draw(position)
                 if flag:
                     for i in map_on_play:
@@ -207,11 +208,15 @@ class Map:
                             list_reduce.append(1)
                             count += 1
                 for i in range(len(list_reduce)):
-                    panel.sprites()[i].update(None, tap_inf_list, list_reduce[i])
+                    try:
+                        panel.sprites()[i].update(None, tap_inf_list, list_reduce[i])
+                    except IndexError:
+                        pass
                 for i in range(len(list_reduce)):
                     list_reduce[i] += 2
-                pygame.display.flip()
-                clock.tick(30)
+                draw_on(circles, panel, screen)
+            pygame.display.flip()
+            clock.tick(40)
 
 
 def draw_on(group1, group2, screen):
@@ -236,6 +241,7 @@ class Stroke_panel(pygame.sprite.Sprite):
                            130 - reduce, 1)
         self.rect = pygame.Rect(self.x - 80 + reduce, self.y - 80 + reduce, 500, 500)
         if reduce > 81:
+            print(1)
             self.kill()
             tap_inf(0, list)
         elif args is not None:

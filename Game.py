@@ -63,6 +63,7 @@ def main_screen(map_focus):
                     else:
                         play_music('data/circles.mp3')
                         start_flag = True
+                        info_for_player = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
                 if not start_flag:
