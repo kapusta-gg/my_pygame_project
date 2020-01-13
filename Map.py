@@ -11,20 +11,21 @@ def load_level(filename):
 
 
 def load_image(name, colorkey=None):
-    fullname = os.path.join('data', name)
+    fullname = os.path.join('data/img', name)
     image = pygame.image.load(fullname)
     image = image.convert_alpha()
     return image
 
 
 class Map:
-    def __init__(self, inf):
+    def __init__(self, inf, color_word):
 
         self.image = inf[0]
         self.txt = inf[2]
         self.music = inf[1]
         self.score = inf[3]
         self.focus = inf[4]
+        self.color_word = color_word
 
     def play(self, screen):
 
@@ -32,6 +33,7 @@ class Map:
         map_on_play = [map_on_play[i].split() for i in range(len(map_on_play))]
         screen.blit(pygame.image.load(self.image), [0, 0])
 
+        color_counter = (3, 192, 60)
         paused = False
         game_lose = False
         post_game = False
@@ -55,16 +57,16 @@ class Map:
         font2 = pygame.font.Font(None, 50)
         font3 = pygame.font.Font(None, 60)
         font_pause = pygame.font.Font(None, 150)
-        text_pause1 = font_pause.render('Возобновить', 1, (255, 146, 24))
-        text_pause2 = font_pause.render('Заново', 1, (255, 146, 24))
-        text_pause3 = font_pause.render('Меню', 1, (255, 146, 24))
-        text_post1 = font3.render('Заново', 1, (255, 146, 24))
-        text_post2 = font3.render('Меню', 1, (255, 146, 24))
-        text_lose = font_pause.render('Ты проиграл', 1, (255, 146, 24))
+        text_pause1 = font_pause.render('Возобновить', 1, self.color_word)
+        text_pause2 = font_pause.render('Заново', 1, self.color_word)
+        text_pause3 = font_pause.render('Меню', 1, self.color_word)
+        text_post1 = font3.render('Заново', 1, self.color_word)
+        text_post2 = font3.render('Меню', 1, self.color_word)
+        text_lose = font_pause.render('Ты проиграл', 1, self.color_word)
 
-        game_over_sound = pygame.mixer.Sound('data/game_over.wav')
-        clear_map_sound = pygame.mixer.Sound('data/applause.wav')
-        button_sound = pygame.mixer.Sound('data/button.wav')
+        game_over_sound = pygame.mixer.Sound('data/sound/game_over.wav')
+        clear_map_sound = pygame.mixer.Sound('data/sound/applause.wav')
+        button_sound = pygame.mixer.Sound('data/sound/button.wav')
 
         sprite = pygame.sprite.Sprite()
         heart_group = pygame.sprite.Group()
@@ -89,7 +91,8 @@ class Map:
                     x, y = event.pos
                     if not paused and not post_game and not game_lose:
                         panel.sprites()[0].update(event.pos, tap_inf_list, list_reduce[0])
-                        del list_reduce[0]
+                        if tap_inf_list != []:
+                            del list_reduce[0]
 
                     if paused:
                         if not game_lose:
@@ -97,28 +100,30 @@ class Map:
                                 button_sound.play()
                                 paused = False
                                 pygame.mixer.music.unpause()
-                        if 440 < x < 1140 and 400 < y < 600:
-                            button_sound.play()
-                            return ['game', None]
-                        if 440 < x < 1140 and 700 < y < 900:
-                            button_sound.play()
-                            return ['main', self.focus]
+                        if 440 < x < 1140:
+                            if 400 < y < 600:
+                                button_sound.play()
+                                return ['game', None]
+                            elif 700 < y < 900:
+                                button_sound.play()
+                                return ['main', self.focus]
                     if post_game:
-                        if 1320 < x < 1620 and 800 < y < 900:
-                            button_sound.play()
-                            return ['game', None]
-                        elif 1320 < x < 1620 and 950 < y < 1050:
-                            button_sound.play()
-                            return ['main', self.focus]
+                        if 1320 < x < 1620:
+                            if 800 < y < 900:
+                                button_sound.play()
+                                return ['game', None]
+                            elif 950 < y < 1050:
+                                button_sound.play()
+                                return ['main', self.focus]
 
                 if event.type == music_end:
                     post_game = True
                     clear_map_sound.play()
                     total_points = (accuracy * points) // max_combo
-                    text_post3 = font1.render('Combo: X' + str(max_combo), 1, (255, 146, 24))
-                    text_post4 = font1.render('Points: ' + str(points), 1, (255, 146, 24))
-                    text_post5 = font1.render('Accuracy: ' + str(accuracy) + '%', 1, (255, 146, 24))
-                    text_post6 = font1.render('Total points: ' + str(total_points), 1, (255, 146, 24))
+                    text_post3 = font1.render('Combo: X' + str(max_combo), 1, self.color_word)
+                    text_post4 = font1.render('Points: ' + str(points), 1, self.color_word)
+                    text_post5 = font1.render('Accuracy: ' + str(accuracy) + '%', 1, self.color_word)
+                    text_post6 = font1.render('Total points: ' + str(total_points), 1, self.color_word)
                     f = open(self.score, 'a')
                     print(total_points, file=f)
                     f.close()
@@ -160,10 +165,10 @@ class Map:
                 pygame.display.flip()
 
             else:
-                text1 = font1.render('X' + str(combo), 1, (3, 192, 60))
-                text2 = font2.render(str(points), 1, (3, 192, 60))
-                text3 = font2.render(str(accuracy) + '%', 1, (3, 192, 60))
-                text4 = font2.render(str(hp), 1, (3, 192, 60))
+                text1 = font1.render('X' + str(combo), 1, color_counter)
+                text2 = font2.render(str(points), 1, color_counter)
+                text3 = font2.render(str(accuracy) + '%', 1, color_counter)
+                text4 = font2.render(str(hp), 1, color_counter)
 
                 screen.blit(pygame.image.load(self.image), [0, 0])
                 heart_group.draw(screen)
@@ -238,7 +243,6 @@ class Stroke_panel(pygame.sprite.Sprite):
                            130 - reduce, 1)
         self.rect = pygame.Rect(self.x - 80 + reduce, self.y - 80 + reduce, 500, 500)
         if reduce > 81:
-            print(1)
             self.kill()
             tap_inf(0, list)
         elif args is not None:
@@ -267,12 +271,12 @@ def draw_circle(x, y, color, panel, circles):
 
 def tap_inf(inf, list):
     if inf == 0:
-        list.append([0, 0, 300, -20])
+        list.append([0, 0, 300, -100])
     elif inf == 1:
         list.append([1, 300, 300, 20])
     elif inf == 2:
         list.append([1, 150, 300, -10])
-    else:
+    elif inf == 3:
         list.append([0, 0, 300, -20])
 
 
