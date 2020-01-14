@@ -90,7 +90,10 @@ class Map:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = event.pos
                     if not paused and not post_game and not game_lose:
-                        panel.sprites()[0].update(event.pos, tap_inf_list, list_reduce[0])
+                        try:
+                            panel.sprites()[0].update(event.pos, tap_inf_list, list_reduce[0])
+                        except IndexError:
+                            pass
                         if tap_inf_list != []:
                             del list_reduce[0]
 
@@ -169,7 +172,6 @@ class Map:
                 text2 = font2.render(str(points), 1, color_counter)
                 text3 = font2.render(str(accuracy) + '%', 1, color_counter)
                 text4 = font2.render(str(hp), 1, color_counter)
-
                 screen.blit(pygame.image.load(self.image), [0, 0])
                 heart_group.draw(screen)
                 screen.blit(text1, (0, 1020))
@@ -277,7 +279,7 @@ def tap_inf(inf, list):
     elif inf == 2:
         list.append([1, 150, 300, -10])
     elif inf == 3:
-        list.append([0, 0, 300, -20])
+        list.append([0, 50, 300, -20])
 
 
 def draw_pause(coor_inf, screen):

@@ -68,7 +68,7 @@ def main_screen(map_focus):
                         info_for_player = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
-                if not start_flag:
+                if not start_flag and not info_for_player:
                     if event.button == 5:
                         map_focus += 1
                     if event.button == 4:
@@ -83,11 +83,11 @@ def main_screen(map_focus):
                 elif start_flag:
                     if event.button == (1 or 2):
                         if 480 < y < 625:
-                            if 850 < x < 1000:
+                            if 850 < x < 1000 and not info_for_player:
                                 sound.play()
                                 start_flag = False
                                 pygame.mixer.music.stop()
-                            elif 1055 < x < 1205:
+                            elif 1055 < x < 1205 and not info_for_player:
                                 terminate()
                             elif 1260 < x < 1410:
                                 info_for_player = True
